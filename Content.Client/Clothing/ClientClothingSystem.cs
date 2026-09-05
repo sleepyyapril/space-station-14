@@ -20,6 +20,32 @@ namespace Content.Client.Clothing;
 
 public sealed partial class ClientClothingSystem : ClothingSystem
 {
+    public const string Jumpsuit = "jumpsuit";
+
+    /// <summary>
+    /// This is a shitty hotfix written by me (Paul) to save me from renaming all files.
+    /// For some context, im currently refactoring inventory. Part of that is slots not being indexed by a massive enum anymore, but by strings.
+    /// Problem here: Every rsi-state is using the old enum-names in their state. I already used the new inventoryslots ALOT. tldr: its this or another week of renaming files.
+    /// </summary>
+    private static readonly Dictionary<string, string> TemporarySlotMap = new()
+    {
+        {"head", "HELMET"},
+        {"eyes", "EYES"},
+        {"ears", "EARS"},
+        {"mask", "MASK"},
+        {"outerClothing", "OUTERCLOTHING"},
+        {Jumpsuit, "INNERCLOTHING"},
+        {"neck", "NECK"},
+        {"back", "BACKPACK"},
+        {"belt", "BELT"},
+        {"gloves", "HAND"},
+        {"shoes", "FEET"},
+        {"id", "IDCARD"},
+        {"pocket1", "POCKET1"},
+        {"pocket2", "POCKET2"},
+        {"suitstorage", "SUITSTORAGE"},
+    };
+
     [Dependency] private IResourceCache _cache = default!;
     [Dependency] private DisplacementMapSystem _displacement = default!;
     [Dependency] private InventorySystem _inventorySystem = default!;
@@ -165,10 +191,13 @@ public sealed partial class ClientClothingSystem : ClothingSystem
         if (rsi == null)
             return false;
 
-        var state = $"equipped-{slot}";
+        var correctedSlot = slot;
+        TemporarySlotMap.TryGetValue(correctedSlot, out correctedSlot);
+
+        var state = $"equipped-{correctedSlot}";
 
         if (!string.IsNullOrEmpty(ent.Comp.EquippedPrefix))
-            state = $"{ent.Comp.EquippedPrefix}-equipped-{slot}";
+            state = $"{ent.Comp.EquippedPrefix}-equipped-{correctedSlot}";
 
         if (ent.Comp.EquippedState != null)
             state = $"{ent.Comp.EquippedState}";
