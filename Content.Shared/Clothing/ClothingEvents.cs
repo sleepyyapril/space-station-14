@@ -1,6 +1,7 @@
 
 using Content.Shared.Actions;
 using Content.Shared.Clothing.Components;
+using Content.Shared.Inventory;
 
 namespace Content.Shared.Clothing;
 
@@ -14,7 +15,7 @@ public sealed class GetEquipmentVisualsEvent : EntityEventArgs
     /// </summary>
     public readonly EntityUid Equipee;
 
-    public readonly string Slot;
+    public readonly SlotDefinition Slot;
 
     /// <summary>
     /// The layers that will be added to the entity that is wearing this item.
@@ -27,7 +28,7 @@ public sealed class GetEquipmentVisualsEvent : EntityEventArgs
     /// </remarks>
     public List<(string, PrototypeLayerData)> Layers = new();
 
-    public GetEquipmentVisualsEvent(EntityUid equipee, string slot)
+    public GetEquipmentVisualsEvent(EntityUid equipee, SlotDefinition slot)
     {
         Equipee = equipee;
         Slot = slot;
@@ -50,14 +51,14 @@ public sealed class EquipmentVisualsUpdatedEvent : EntityEventArgs
     /// <summary>
     /// The slot that the equipment is being worn in.
     /// </summary>
-    public readonly string Slot;
+    public readonly SlotDefinition Slot;
 
     /// <summary>
     /// The layers that this item is now revealing.
     /// </summary>
     public HashSet<string> RevealedLayers;
 
-    public EquipmentVisualsUpdatedEvent(EntityUid equipee, string slot, HashSet<string> revealedLayers)
+    public EquipmentVisualsUpdatedEvent(EntityUid equipee, SlotDefinition slot, HashSet<string> revealedLayers)
     {
         Equipee = equipee;
         Slot = slot;

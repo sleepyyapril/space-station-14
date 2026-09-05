@@ -20,32 +20,6 @@ namespace Content.Client.Clothing;
 
 public sealed partial class ClientClothingSystem : ClothingSystem
 {
-    public const string Jumpsuit = "jumpsuit";
-
-    /// <summary>
-    /// This is a shitty hotfix written by me (Paul) to save me from renaming all files.
-    /// For some context, im currently refactoring inventory. Part of that is slots not being indexed by a massive enum anymore, but by strings.
-    /// Problem here: Every rsi-state is using the old enum-names in their state. I already used the new inventoryslots ALOT. tldr: its this or another week of renaming files.
-    /// </summary>
-    private static readonly Dictionary<string, string> TemporarySlotMap = new()
-    {
-        {"head", "HELMET"},
-        {"eyes", "EYES"},
-        {"ears", "EARS"},
-        {"mask", "MASK"},
-        {"outerClothing", "OUTERCLOTHING"},
-        {Jumpsuit, "INNERCLOTHING"},
-        {"neck", "NECK"},
-        {"back", "BACKPACK"},
-        {"belt", "BELT"},
-        {"gloves", "HAND"},
-        {"shoes", "FEET"},
-        {"id", "IDCARD"},
-        {"pocket1", "POCKET1"},
-        {"pocket2", "POCKET2"},
-        {"suitstorage", "SUITSTORAGE"},
-    };
-
     [Dependency] private IResourceCache _cache = default!;
     [Dependency] private DisplacementMapSystem _displacement = default!;
     [Dependency] private InventorySystem _inventorySystem = default!;
@@ -101,7 +75,7 @@ public sealed partial class ClientClothingSystem : ClothingSystem
             ent.Comp.ClothingVisuals.TryGetValue($"{args.Slot}-{inventory.SpeciesId}", out layers);
 
         // if that returned nothing, attempt to find generic data
-        if (layers == null && !ent.Comp.ClothingVisuals.TryGetValue(args.Slot, out layers))
+        if (layers == null && !ent.Comp.ClothingVisuals.TryGetValue(args.Slot.Name, out layers))
         {
             // No generic data either. Attempt to generate defaults from the item's RSI & item-prefixes
             if (!TryGetDefaultVisuals(ent, args.Slot, inventory.SpeciesId, out layers))
@@ -176,7 +150,7 @@ public sealed partial class ClientClothingSystem : ClothingSystem
     /// <remarks>
     /// Useful for lazily adding clothing sprites without modifying yaml. And for backwards compatibility.
     /// </remarks>
-    private bool TryGetDefaultVisuals(Entity<ClothingComponent> ent, string slot, string? speciesId,
+    private bool TryGetDefaultVisuals(Entity<ClothingComponent> ent, SlotDefinition slot, string? speciesId,
         [NotNullWhen(true)] out List<PrototypeLayerData>? layers)
     {
         layers = null;
@@ -191,13 +165,11 @@ public sealed partial class ClientClothingSystem : ClothingSystem
         if (rsi == null)
             return false;
 
-        var correctedSlot = slot;
-        TemporarySlotMap.TryGetValue(correctedSlot, out correctedSlot);
-
-        var state = $"equipped-{correctedSlot}";
+        var slotFlagName = slot.SlotFlags.ToString();
+        var state = $"equipped-{slotFlagName}";
 
         if (!string.IsNullOrEmpty(ent.Comp.EquippedPrefix))
-            state = $"{ent.Comp.EquippedPrefix}-equipped-{correctedSlot}";
+            state = $"{ent.Comp.EquippedPrefix}-equipped-{slotFlagName}";
 
         if (ent.Comp.EquippedState != null)
             state = $"{ent.Comp.EquippedState}";
@@ -303,12 +275,12 @@ public sealed partial class ClientClothingSystem : ClothingSystem
         // Cache the clothing sprite, used later.
         _spriteQuery.TryComp(equipment, out var clothingSprite);
 
-        var ev = new GetEquipmentVisualsEvent(equipee, slot);
+        var ev = new GetEquipmentVisualsEvent(equipee, slotDef);
         RaiseLocalEvent(equipment, ev);
 
         if (ev.Layers.Count == 0)
         {
-            RaiseLocalEvent(equipment, new EquipmentVisualsUpdatedEvent(equipee, slot, revealedLayers), true);
+            RaiseLocalEvent(equipment, new EquipmentVisualsUpdatedEvent(equipee, slotDef, revealedLayers), true);
             return;
         }
 
@@ -391,7 +363,7 @@ public sealed partial class ClientClothingSystem : ClothingSystem
             }
         }
 
-        RaiseLocalEvent(equipment, new EquipmentVisualsUpdatedEvent(equipee, slot, revealedLayers), true);
+        RaiseLocalEvent(equipment, new EquipmentVisualsUpdatedEvent(equipee, slotDef, revealedLayers), true);
     }
     #endregion Internal
 }
