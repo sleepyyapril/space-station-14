@@ -72,7 +72,7 @@ public sealed partial class ClientClothingSystem : ClothingSystem
 
         // first attempt to get species specific data.
         if (inventory.SpeciesId != null)
-            ent.Comp.ClothingVisuals.TryGetValue($"{args.Slot}-{inventory.SpeciesId}", out layers);
+            ent.Comp.ClothingVisuals.TryGetValue($"{args.Slot.Name}-{inventory.SpeciesId}", out layers);
 
         // if that returned nothing, attempt to find generic data
         if (layers == null && !ent.Comp.ClothingVisuals.TryGetValue(args.Slot.Name, out layers))
@@ -90,7 +90,7 @@ public sealed partial class ClientClothingSystem : ClothingSystem
             if (key == null)
             {
                 // using the $"{args.Slot}" layer key as the "bookmark" for layer ordering until layer draw depths get added
-                key = $"{args.Slot}-{i}";
+                key = $"{args.Slot.Name}-{i}";
                 i++;
             }
 

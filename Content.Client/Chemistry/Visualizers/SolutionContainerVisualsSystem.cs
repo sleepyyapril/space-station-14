@@ -177,8 +177,8 @@ public sealed partial class SolutionContainerVisualsSystem : VisualizerSystem<So
             return;
 
         var equippedPrefix = clothing.EquippedPrefix == null
-            ? $"equipped-{args.Slot}"
-            : $" {clothing.EquippedPrefix}-equipped-{args.Slot}";
+            ? $"equipped-{args.Slot.Name}"
+            : $" {clothing.EquippedPrefix}-equipped-{args.Slot.Name}";
         var layerKeyPrefix = equippedPrefix + ent.Comp.EquippedFillBaseName;
 
         if (GetVisualsLayer(ent, layerKeyPrefix, ent.Comp.EquippedMaxFillLevels) is { } layer)

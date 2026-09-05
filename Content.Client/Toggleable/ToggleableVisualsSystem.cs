@@ -83,10 +83,10 @@ public sealed partial class ToggleableVisualsSystem : VisualizerSystem<Toggleabl
 
         // attempt to get species specific data
         if (inventory.SpeciesId != null)
-            component.ClothingVisuals.TryGetValue($"{args.Slot}-{inventory.SpeciesId}", out layers);
+            component.ClothingVisuals.TryGetValue($"{args.Slot.Name}-{inventory.SpeciesId}", out layers);
 
-        // No species specific data.  Try to default to generic data.
-        if (layers == null && !component.ClothingVisuals.TryGetValue(args.Slot, out layers))
+        // No species specific data.  Try to defautlt to generic data.
+        if (layers == null && !component.ClothingVisuals.TryGetValue(args.Slot.Name, out layers))
             return;
 
         var modulateColor = AppearanceSystem.TryGetData<Color>(uid, ToggleableVisuals.Color, out var color, appearance);
@@ -97,7 +97,7 @@ public sealed partial class ToggleableVisualsSystem : VisualizerSystem<Toggleabl
             var key = layer.MapKeys?.FirstOrDefault();
             if (key == null)
             {
-                key = i == 0 ? $"{args.Slot}-toggle" : $"{args.Slot}-toggle-{i}";
+                key = i == 0 ? $"{args.Slot.Name}-toggle" : $"{args.Slot.Name}-toggle-{i}";
                 i++;
             }
 
